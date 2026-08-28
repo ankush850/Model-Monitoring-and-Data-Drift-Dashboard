@@ -1,0 +1,32 @@
+# Store text files with LF line endings in the repository; Git converts them
+# for each checkout as configured on that machine.
+* text=auto
+
+# Files used inside Linux containers or by Python tools: always LF, also on Windows.
+*.py        text eol=lf
+*.toml      text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.txt       text eol=lf
+*.md        text eol=lf
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+.dockerignore text eol=lf
+.gitignore  text eol=lf
+.gitattributes text eol=lf
+
+# Windows scripts keep CRLF.
+*.ps1       text eol=crlf
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# Binary artifacts (ignored by .gitignore, listed so they are never diffed or converted).
+*.joblib    binary
+*.pkl       binary
+*.db        binary
+*.sqlite    binary
+*.sqlite3   binary
+*.zip       binary
+*.png       binary
+*.jpg       binary

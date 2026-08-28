@@ -1,0 +1,23 @@
+# Phase 0 + 1: data loading and model training
+pandas==3.0.6
+numpy==2.5.4
+scikit-learn==1.9.1
+joblib==1.6.0
+
+# Phase 3: drift detection (KS test)
+scipy==1.18.1
+
+# Phase 4: streaming drift detection (ADWIN, Page-Hinkley)
+river==0.26.1
+
+# Phase 6: monitoring dashboard
+streamlit==1.66.0
+plotly==7.1.0
+
+# Phase 7: prediction API (uvicorn was already installed with streamlit)
+fastapi==0.143.3
+uvicorn==0.54.0
+
+# Testing
+pytest==9.1.1
+httpx==0.28.1

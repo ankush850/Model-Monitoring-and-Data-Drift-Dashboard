@@ -1,0 +1,43 @@
+# Keep the image to code + dependencies. Data, models and databases are
+# mounted at runtime (see docker-compose.yml), never baked into the image.
+
+# Virtual environments, Git, editors
+.venv/
+venv/
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Python caches and build output
+**/__pycache__/
+**/*.py[cod]
+**/*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Datasets, models and databases (possibly private / large)
+data/
+db/
+models/
+**/*.csv
+**/*.db
+**/*.db-journal
+**/*.sqlite
+**/*.sqlite3
+**/*.joblib
+**/*.pkl
+
+# Notebooks and secrets
+notebooks/
+.ipynb_checkpoints/
+.env
+**/.env
+**/*.pem
+**/*.key
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
+.dockerignore

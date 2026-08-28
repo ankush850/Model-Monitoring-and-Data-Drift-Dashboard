@@ -1,0 +1,66 @@
+# --- Python virtual environment ---
+.venv/
+venv/
+
+# --- Python cache and build files ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# --- Test, coverage and linter output ---
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# --- Dataset (large, downloaded from Kaggle) ---
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+*.csv
+*.zip
+
+# --- Model artifacts ---
+models/*
+!models/.gitkeep
+*.joblib
+*.pkl
+
+# --- Database files ---
+db/*
+!db/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite-journal
+*.sqlite3-journal
+
+# --- Backups and logs ---
+backups/
+*.bak
+*.log
+logs/
+
+# --- Editor / OS files ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Notebook checkpoints ---
+.ipynb_checkpoints/
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
