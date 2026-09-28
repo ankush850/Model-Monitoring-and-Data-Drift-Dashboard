@@ -1,0 +1,75 @@
+# Fraud model monitoring: FastAPI + Streamlit sharing one persistent SQLite database.
+#
+#   docker compose up -d --build                         start API (8000) and dashboard (8502)
+#   docker compose --profile tools run --rm db-import    copy .\db\monitoring.db into the volume (never overwrites)
+#   docker compose --profile tools run --rm monitor python -m monitoring.simulate run
+#   docker compose down                                  stop (the database volume is kept)
+
+name: ml-monitoring
+
+x-app: &app
+  build: .
+  image: ml-monitoring-system:latest
+  environment:
+    MONITORING_DB: /app/db/monitoring.db
+    MONITORING_MODEL: /app/models/fraud_model.joblib
+    MONITORING_BASELINE: /app/models/training_metrics.json
+    MONITORING_REFERENCE_DATA: /app/data/processed/reference.csv
+    MONITORING_PRODUCTION_DATA: /app/data/processed/production.csv
+  volumes:
+    - monitoring-db:/app/db                          # the one shared SQLite database (persistent)
+    - ./models:/app/models:ro                        # trained model, read-only: never overwritten
+    - ./data/processed:/app/data/processed:ro        # reference/production CSVs, read-only
+
+services:
+  api:
+    <<: *app
+    command: ["python", "-m", "uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"           # localhost only: the API has no authentication
+    restart: unless-stopped
+    healthcheck:
+      # /health returns 503 until the model loads AND the database exists.
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  dashboard:
+    <<: *app
+    command: ["streamlit", "run", "dashboard/app.py",
+              "--server.address", "0.0.0.0", "--server.port", "8502", "--server.headless", "true"]
+    ports:
+      - "127.0.0.1:${DASHBOARD_PORT:-8502}:8502"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8502/_stcore/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # One-off monitoring commands against the shared database, e.g.
+  #   docker compose --profile tools run --rm monitor python -m monitoring.drift run
+  monitor:
+    <<: *app
+    profiles: ["tools"]
+    command: ["python", "-m", "monitoring.simulate", "status"]
+    restart: "no"
+
+  # Copies the host database into the volume once. Refuses if the volume already has one.
+  db-import:
+    <<: *app
+    profiles: ["tools"]
+    volumes:
+      - monitoring-db:/app/db
+      - ./db:/import:ro                                # host database, read-only
+    command: ["python", "docker/import_db.py", "/import/monitoring.db", "/app/db/monitoring.db"]
+    restart: "no"
+
+volumes:
+  monitoring-db:
+    # Fixed name so `docker compose down` / rebuilds keep using the same data.
+    # Override with MONITORING_VOLUME to run a separate, throw-away copy.
+    name: ${MONITORING_VOLUME:-ml-monitoring-db}
